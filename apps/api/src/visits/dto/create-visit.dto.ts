@@ -1,11 +1,11 @@
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
-  IsDate,
   IsEnum,
   IsMongoId,
   IsOptional,
   IsString,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { IsZzAddress, TransformZzAddress } from '../../common';
 import { VisitOutcome, VisitVia } from '../visit.enums';
@@ -15,6 +15,7 @@ export class CreateVisitDto {
   personId!: string;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null && value !== undefined && value !== '')
   @IsMongoId()
   siteId?: string;
 
@@ -27,10 +28,6 @@ export class CreateVisitDto {
 
   @IsEnum(VisitVia)
   via!: VisitVia;
-
-  @Type(() => Date)
-  @IsDate()
-  visitedAt!: Date;
 
   @IsOptional()
   @IsString()
