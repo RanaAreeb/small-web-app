@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import type { SearchResultSnapshot } from '@/browser';
 
 type SearchResultsViewProps = {
@@ -54,55 +53,5 @@ export function SearchResultsView({
         </ol>
       )}
     </div>
-  );
-}
-
-type PageViewProps = {
-  title: string;
-  sanitizedHtml: string;
-  onNavigateLink: (address: string) => void;
-};
-
-export function PageView({
-  title,
-  sanitizedHtml,
-  onNavigateLink,
-}: PageViewProps) {
-  const articleRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const container = articleRef.current;
-    if (!container) {
-      return;
-    }
-
-    function onClick(event: MouseEvent) {
-      const target = event.target;
-      if (!(target instanceof Element)) {
-        return;
-      }
-      const anchor = target.closest('a');
-      if (!anchor || !container?.contains(anchor)) {
-        return;
-      }
-
-      const href = anchor.getAttribute('href');
-      if (!href) {
-        return;
-      }
-
-      event.preventDefault();
-      onNavigateLink(href);
-    }
-
-    container.addEventListener('click', onClick);
-    return () => container.removeEventListener('click', onClick);
-  }, [onNavigateLink, sanitizedHtml]);
-
-  return (
-    <article ref={articleRef} className="site-document px-4 py-6 sm:px-8">
-      <h1 className="sr-only">{title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-    </article>
   );
 }

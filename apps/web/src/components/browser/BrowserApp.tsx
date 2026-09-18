@@ -1,11 +1,12 @@
 'use client';
 
 import { BrowserToolbar } from './BrowserToolbar';
-import { PageView, SearchResultsView } from './ContentViews';
+import { SearchResultsView } from './ContentViews';
 import { HistoryPanel } from './HistoryPanel';
 import { NotFoundView } from './NotFoundView';
 import { PublishPanel } from './PublishPanel';
 import { SearchPanel } from './SearchPanel';
+import { SiteViewport } from './SiteViewport';
 import { WelcomeView } from './WelcomeView';
 import { useBrowserController } from '@/hooks/useBrowserController';
 
@@ -38,6 +39,8 @@ export function BrowserApp() {
     switchPerson,
     updateScroll,
   } = browser;
+
+  const showingPage = currentEntry?.kind === 'page';
 
   return (
     <div className="flex min-h-screen items-stretch justify-center bg-[var(--page)] px-0 py-0 sm:px-4 sm:py-6">
@@ -135,47 +138,55 @@ export function BrowserApp() {
           </div>
         ) : null}
 
-        <div
-          ref={viewportRef}
-          className="min-h-[28rem] flex-1 overflow-y-auto bg-[var(--background)]"
-          onScroll={(event) => {
-            updateScroll(event.currentTarget.scrollTop);
-          }}
-        >
-          {!ready ? (
-            <p className="px-4 py-10 text-sm text-[var(--muted-strong)]">
-              Preparing browser…
-            </p>
-          ) : null}
-
-          {ready && !currentEntry ? (
-            <WelcomeView
-              disabled={loading || !state.personId}
-              onOpenAddress={(address) => void navigateToAddress(address, 'typed')}
-            />
-          ) : null}
-
-          {currentEntry?.kind === 'page' ? (
-            <PageView
+        {showingPage && currentEntry.kind === 'page' ? (
+          <div className="flex min-h-[28rem] flex-1 flex-col">
+            <SiteViewport
               title={currentEntry.title}
               sanitizedHtml={currentEntry.sanitizedHtml}
-              onNavigateLink={(address) => void navigateToAddress(address, 'link')}
+              scrollY={currentEntry.scrollY}
+              onLinkClick={(address) => void navigateToAddress(address, 'link')}
+              onScrollY={updateScroll}
             />
-          ) : null}
+          </div>
+        ) : (
+          <div
+            ref={viewportRef}
+            className="min-h-[28rem] flex-1 overflow-y-auto bg-[var(--background)]"
+            onScroll={(event) => {
+              updateScroll(event.currentTarget.scrollTop);
+            }}
+          >
+            {!ready ? (
+              <p className="px-4 py-10 text-sm text-[var(--muted-strong)]">
+                Preparing browser…
+              </p>
+            ) : null}
 
-          {currentEntry?.kind === 'not_found' ? (
-            <NotFoundView address={currentEntry.address} />
-          ) : null}
+            {ready && !currentEntry ? (
+              <WelcomeView
+                disabled={loading || !state.personId}
+                onOpenAddress={(address) =>
+                  void navigateToAddress(address, 'typed')
+                }
+              />
+            ) : null}
 
-          {currentEntry?.kind === 'search' ? (
-            <SearchResultsView
-              query={currentEntry.query}
-              results={currentEntry.results}
-              disabled={loading}
-              onOpenResult={(address) => void navigateToAddress(address, 'search')}
-            />
-          ) : null}
-        </div>
+            {currentEntry?.kind === 'not_found' ? (
+              <NotFoundView address={currentEntry.address} />
+            ) : null}
+
+            {currentEntry?.kind === 'search' ? (
+              <SearchResultsView
+                query={currentEntry.query}
+                results={currentEntry.results}
+                disabled={loading}
+                onOpenResult={(address) =>
+                  void navigateToAddress(address, 'search')
+                }
+              />
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

