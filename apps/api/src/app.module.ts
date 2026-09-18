@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CommonModule } from './common/common.module';
 import { HealthController } from './health.controller';
 import { PeopleModule } from './people/people.module';
 import { SitesModule } from './sites/sites.module';
@@ -19,6 +20,7 @@ import { VisitsModule } from './visits/visits.module';
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
+    CommonModule,
     PeopleModule,
     SitesModule,
     VisitsModule,
