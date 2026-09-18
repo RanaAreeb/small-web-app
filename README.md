@@ -35,5 +35,10 @@ pnpm dev
 | `pnpm dev` | Run web and API in parallel |
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Lint all apps |
-| `pnpm test` | Test all apps |
+| `pnpm test` | Unit tests for all apps |
+| `pnpm test:e2e` | Playwright E2E against real web + API + `small-web-e2e` MongoDB |
 | `pnpm seed` | Seed the database |
+
+### End-to-end tests
+
+`pnpm test:e2e` builds production web/API bundles, resets and seeds the isolated `small-web-e2e` database (derived from `MONGODB_URI`), starts the API on port `4100` and the web app on port `3100`, then runs the Playwright assessment suite.

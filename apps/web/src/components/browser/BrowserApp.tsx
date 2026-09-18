@@ -47,7 +47,11 @@ export function BrowserApp() {
     searchUi.status === 'loading' || searchUi.status === 'error';
 
   return (
-    <div className="relative flex min-h-screen items-stretch justify-center bg-[var(--page)] px-0 py-0 sm:px-4 sm:py-6">
+    <div
+      className="relative flex min-h-screen items-stretch justify-center bg-[var(--page)] px-0 py-0 sm:px-4 sm:py-6"
+      data-testid="browser-app"
+      data-ready={ready ? 'true' : 'false'}
+    >
       <div className="flex w-full max-w-6xl flex-col overflow-hidden border-y border-[var(--border)] bg-[var(--background)] shadow-[0_12px_40px_rgba(20,24,28,0.08)] sm:rounded-xl sm:border">
         <header className="border-b border-[var(--border)] bg-[var(--surface)] px-4 py-3">
           <div className="flex items-baseline justify-between gap-3">
@@ -135,13 +139,17 @@ export function BrowserApp() {
         ) : (
           <div
             ref={viewportRef}
+            data-testid="content-viewport"
             className="min-h-[28rem] flex-1 overflow-y-auto bg-[var(--background)]"
             onScroll={(event) => {
               updateScroll(event.currentTarget.scrollTop);
             }}
           >
             {!ready ? (
-              <p className="px-4 py-10 text-sm text-[var(--muted-strong)]">
+              <p
+                className="px-4 py-10 text-sm text-[var(--muted-strong)]"
+                data-testid="browser-preparing"
+              >
                 Preparing browser…
               </p>
             ) : null}

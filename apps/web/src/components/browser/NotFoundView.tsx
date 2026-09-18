@@ -6,7 +6,10 @@ type NotFoundViewProps = {
 
 export function NotFoundView({ address }: NotFoundViewProps) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-16 sm:px-8">
+    <div
+      className="mx-auto max-w-xl px-4 py-16 sm:px-8"
+      data-testid="not-found-view"
+    >
       <p className="text-sm font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
         Not found
       </p>

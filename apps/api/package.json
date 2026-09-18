@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
+    "seed:e2e": "ts-node -r tsconfig-paths/register src/seed/reset-and-seed.ts",
     "seed:verify": "ts-node -r tsconfig-paths/register src/seed/verify-idempotency.ts"
   },
   "dependencies": {

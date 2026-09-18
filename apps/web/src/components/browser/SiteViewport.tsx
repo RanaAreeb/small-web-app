@@ -94,6 +94,7 @@ export function SiteViewport({
     <iframe
       ref={iframeRef}
       title={title}
+      data-testid="site-viewport"
       srcDoc={srcDoc}
       sandbox="allow-scripts"
       referrerPolicy="no-referrer"

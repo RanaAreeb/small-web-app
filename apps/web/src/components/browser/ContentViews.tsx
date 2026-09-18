@@ -66,12 +66,13 @@ export function SearchResultsView({
       ) : null}
 
       {!loading && !error && count > 0 ? (
-        <ol className="mt-6 space-y-3">
+        <ol className="mt-6 space-y-3" data-testid="search-results">
           {results.map((result) => (
             <li key={result.address}>
               <button
                 type="button"
                 disabled={disabled}
+                data-testid={`search-result-${result.address}`}
                 onClick={() => onOpenResult(result.address)}
                 className="w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-left hover:bg-[var(--surface-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] disabled:opacity-40"
               >

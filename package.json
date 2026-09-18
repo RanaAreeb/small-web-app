@@ -6,10 +6,14 @@
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
-    "seed": "pnpm --filter @small-web/api run seed"
+    "seed": "pnpm --filter @small-web/api run seed",
+    "test:e2e": "node e2e/run.mjs"
   },
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.2",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
 }
