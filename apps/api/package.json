@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
+    "seed:verify": "ts-node -r tsconfig-paths/register src/seed/verify-idempotency.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
