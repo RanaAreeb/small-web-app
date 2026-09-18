@@ -14,6 +14,7 @@ describe('VisitsService', () => {
   let visitModel: {
     create: jest.Mock;
     find: jest.Mock;
+    findByIdAndDelete: jest.Mock;
   };
   let personModel: {
     findById: jest.Mock;
@@ -39,6 +40,7 @@ describe('VisitsService', () => {
     visitModel = {
       create: jest.fn(),
       find: jest.fn(),
+      findByIdAndDelete: jest.fn(),
     };
     personModel = {
       findById: jest.fn(),
@@ -393,6 +395,29 @@ describe('VisitsService', () => {
       });
       expect(nextPage.items[0]?.address).toBe('three.zz');
       expect(nextPage.nextCursor).toBeUndefined();
+    });
+  });
+
+  describe('remove', () => {
+    it('deletes a visit by id', async () => {
+      const visitId = new Types.ObjectId();
+      visitModel.findByIdAndDelete.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ _id: visitId }),
+      });
+
+      await expect(service.remove(String(visitId))).resolves.toBeUndefined();
+      expect(visitModel.findByIdAndDelete).toHaveBeenCalledWith(String(visitId));
+    });
+
+    it('returns 404 when the visit is missing', async () => {
+      const visitId = new Types.ObjectId();
+      visitModel.findByIdAndDelete.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
+
+      await expect(service.remove(String(visitId))).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });

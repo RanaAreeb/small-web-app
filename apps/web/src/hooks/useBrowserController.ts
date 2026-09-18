@@ -25,6 +25,11 @@ import { ApiError, type Person, type VisitVia } from '@/types';
 
 export type BrowserPanel = 'none' | 'search' | 'history' | 'publish';
 
+export type SearchUiState =
+  | { status: 'idle' }
+  | { status: 'loading'; query: string }
+  | { status: 'error'; query: string; message: string };
+
 function addressFromState(state: BrowserState): string {
   const entry = getCurrentEntry(state);
   if (!entry) {
@@ -49,6 +54,7 @@ export function useBrowserController() {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [panel, setPanel] = useState<BrowserPanel>('none');
+  const [searchUi, setSearchUi] = useState<SearchUiState>({ status: 'idle' });
   const [ready, setReady] = useState(false);
 
   const addressInputRef = useRef<HTMLInputElement>(null);
@@ -318,6 +324,11 @@ export function useBrowserController() {
       const trimmed = query.trim();
       if (!trimmed) {
         setStatusMessage('Enter a search query.');
+        setSearchUi({
+          status: 'error',
+          query: '',
+          message: 'Enter a search query.',
+        });
         return;
       }
       if (!stateRef.current.personId) {
@@ -332,6 +343,8 @@ export function useBrowserController() {
 
       setLoading(true);
       setStatusMessage(null);
+      setSearchUi({ status: 'loading', query: trimmed });
+      setSearchQuery(trimmed);
       setPanel('none');
 
       try {
@@ -350,14 +363,15 @@ export function useBrowserController() {
           })),
         });
         setAddressInput('');
-        setSearchQuery(trimmed);
+        setSearchUi({ status: 'idle' });
       } catch (error) {
         if (controller.signal.aborted || requestId !== requestIdRef.current) {
           return;
         }
-        setStatusMessage(
-          error instanceof Error ? error.message : 'Search failed',
-        );
+        const message =
+          error instanceof Error ? error.message : 'Search failed';
+        setStatusMessage(message);
+        setSearchUi({ status: 'error', query: trimmed, message });
       } finally {
         if (requestId === requestIdRef.current) {
           setLoading(false);
@@ -439,6 +453,7 @@ export function useBrowserController() {
     setStatusMessage,
     panel,
     setPanel,
+    searchUi,
     addressInputRef,
     viewportRef,
     backEnabled,

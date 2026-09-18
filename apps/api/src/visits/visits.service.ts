@@ -125,6 +125,17 @@ export class VisitsService {
     };
   }
 
+  async remove(visitId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(visitId)) {
+      throw new NotFoundException(`Visit not found for id '${visitId}'`);
+    }
+
+    const deleted = await this.visitModel.findByIdAndDelete(visitId).exec();
+    if (!deleted) {
+      throw new NotFoundException(`Visit not found for id '${visitId}'`);
+    }
+  }
+
   private toVisitResponse(
     visit: VisitDocument,
     site: SiteDocument | null,

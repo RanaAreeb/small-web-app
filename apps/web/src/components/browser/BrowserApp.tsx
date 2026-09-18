@@ -2,9 +2,9 @@
 
 import { BrowserToolbar } from './BrowserToolbar';
 import { SearchResultsView } from './ContentViews';
-import { HistoryPanel } from './HistoryPanel';
+import { HistoryDrawer } from './HistoryDrawer';
 import { NotFoundView } from './NotFoundView';
-import { PublishPanel } from './PublishPanel';
+import { PublishModal } from './PublishModal';
 import { SearchPanel } from './SearchPanel';
 import { SiteViewport } from './SiteViewport';
 import { WelcomeView } from './WelcomeView';
@@ -26,6 +26,7 @@ export function BrowserApp() {
     statusMessage,
     panel,
     setPanel,
+    searchUi,
     addressInputRef,
     viewportRef,
     backEnabled,
@@ -41,9 +42,12 @@ export function BrowserApp() {
   } = browser;
 
   const showingPage = currentEntry?.kind === 'page';
+  const selectedPerson = people.find((person) => person.id === state.personId);
+  const showSearchTransient =
+    searchUi.status === 'loading' || searchUi.status === 'error';
 
   return (
-    <div className="flex min-h-screen items-stretch justify-center bg-[var(--page)] px-0 py-0 sm:px-4 sm:py-6">
+    <div className="relative flex min-h-screen items-stretch justify-center bg-[var(--page)] px-0 py-0 sm:px-4 sm:py-6">
       <div className="flex w-full max-w-6xl flex-col overflow-hidden border-y border-[var(--border)] bg-[var(--background)] shadow-[0_12px_40px_rgba(20,24,28,0.08)] sm:rounded-xl sm:border">
         <header className="border-b border-[var(--border)] bg-[var(--surface)] px-4 py-3">
           <div className="flex items-baseline justify-between gap-3">
@@ -95,32 +99,12 @@ export function BrowserApp() {
             onQueryChange={setSearchQuery}
             onSubmit={(query) => void runSearch(query)}
             onClose={() => setPanel('none')}
-            disabled={loading}
+            disabled={!state.personId}
+            loading={loading && searchUi.status === 'loading'}
           />
         ) : null}
 
-        {panel === 'history' && state.personId ? (
-          <HistoryPanel
-            personId={state.personId}
-            onOpenAddress={(address) => void navigateToAddress(address, 'history')}
-            onClose={() => setPanel('none')}
-            disabled={loading}
-          />
-        ) : null}
-
-        {panel === 'publish' && state.personId ? (
-          <PublishPanel
-            authorId={state.personId}
-            onPublished={(address) => {
-              setPanel('none');
-              void navigateToAddress(address, 'publish');
-            }}
-            onClose={() => setPanel('none')}
-            disabled={loading}
-          />
-        ) : null}
-
-        {statusMessage ? (
+        {statusMessage && searchUi.status !== 'error' ? (
           <div
             role="status"
             className="border-b border-[var(--border)] bg-[#f3e6e2] px-4 py-2 text-sm text-[#6b2f22]"
@@ -138,7 +122,7 @@ export function BrowserApp() {
           </div>
         ) : null}
 
-        {showingPage && currentEntry.kind === 'page' ? (
+        {showingPage && currentEntry.kind === 'page' && !showSearchTransient ? (
           <div className="flex min-h-[28rem] flex-1 flex-col">
             <SiteViewport
               title={currentEntry.title}
@@ -162,7 +146,25 @@ export function BrowserApp() {
               </p>
             ) : null}
 
-            {ready && !currentEntry ? (
+            {ready && showSearchTransient ? (
+              <SearchResultsView
+                query={searchUi.query}
+                results={[]}
+                loading={searchUi.status === 'loading'}
+                error={searchUi.status === 'error' ? searchUi.message : null}
+                disabled={loading}
+                onOpenResult={(address) =>
+                  void navigateToAddress(address, 'search')
+                }
+                onRetry={
+                  searchUi.status === 'error'
+                    ? () => void runSearch(searchUi.query)
+                    : undefined
+                }
+              />
+            ) : null}
+
+            {ready && !showSearchTransient && !currentEntry ? (
               <WelcomeView
                 disabled={loading || !state.personId}
                 onOpenAddress={(address) =>
@@ -171,11 +173,11 @@ export function BrowserApp() {
               />
             ) : null}
 
-            {currentEntry?.kind === 'not_found' ? (
+            {ready && !showSearchTransient && currentEntry?.kind === 'not_found' ? (
               <NotFoundView address={currentEntry.address} />
             ) : null}
 
-            {currentEntry?.kind === 'search' ? (
+            {ready && !showSearchTransient && currentEntry?.kind === 'search' ? (
               <SearchResultsView
                 query={currentEntry.query}
                 results={currentEntry.results}
@@ -188,6 +190,34 @@ export function BrowserApp() {
           </div>
         )}
       </div>
+
+      {state.personId ? (
+        <HistoryDrawer
+          open={panel === 'history'}
+          personId={state.personId}
+          personName={selectedPerson?.name}
+          disabled={loading}
+          onClose={() => setPanel('none')}
+          onOpenAddress={(address) => {
+            setPanel('none');
+            void navigateToAddress(address, 'history');
+          }}
+        />
+      ) : null}
+
+      {state.personId && selectedPerson ? (
+        <PublishModal
+          open={panel === 'publish'}
+          authorId={state.personId}
+          authorName={selectedPerson.name}
+          disabled={loading}
+          onClose={() => setPanel('none')}
+          onPublished={(address) => {
+            setPanel('none');
+            void navigateToAddress(address, 'publish');
+          }}
+        />
+      ) : null}
     </div>
   );
 }

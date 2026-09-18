@@ -94,6 +94,13 @@ export const api = {
     });
   },
 
+  deleteVisit(visitId: string, signal?: AbortSignal): Promise<void> {
+    return request<void>(`/visits/${encodeURIComponent(visitId)}`, {
+      method: 'DELETE',
+      signal,
+    });
+  },
+
   getHistory(
     personId: string,
     options: { cursor?: string; limit?: number; signal?: AbortSignal } = {},
