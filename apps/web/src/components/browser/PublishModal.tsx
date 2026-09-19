@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
-import { ApiError } from '@/types';
+import { isApiError } from '@/types';
 import { api } from '@/lib/api';
 import { ToolbarButton } from './ToolbarButton';
 
@@ -76,7 +76,7 @@ export function PublishModal({
       setTitle('');
       setHtml(EXAMPLE_HTML);
     } catch (err) {
-      if (err instanceof ApiError) {
+      if (isApiError(err)) {
         if (err.status === 409) {
           setError('That address is already published. Choose a different .zz name.');
         } else {

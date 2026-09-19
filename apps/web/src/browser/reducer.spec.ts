@@ -153,6 +153,74 @@ describe('browserReducer', () => {
     });
   });
 
+  it('A -> B -> C -> back restores B with forward enabled', () => {
+    let state = createInitialBrowserState('person-a');
+    state = browserReducer(state, page('a.zz', 'A'));
+    state = browserReducer(state, page('b.zz', 'B', '<p>Exact B</p>'));
+    state = browserReducer(state, {
+      type: 'update_scroll',
+      scrollY: 120,
+    });
+    const snapshotB = structuredClone(getCurrentEntry(state));
+    state = browserReducer(state, page('c.zz', 'C'));
+
+    state = browserReducer(state, { type: 'back' });
+
+    expect(getCurrentEntry(state)).toEqual(snapshotB);
+    expect(canGoBack(state)).toBe(true);
+    expect(canGoForward(state)).toBe(true);
+  });
+
+  it('A -> B -> C -> back -> back leaves A with forward only', () => {
+    let state = createInitialBrowserState('person-a');
+    state = browserReducer(state, page('a.zz', 'A'));
+    state = browserReducer(state, page('b.zz', 'B'));
+    state = browserReducer(state, page('c.zz', 'C'));
+
+    state = browserReducer(state, { type: 'back' });
+    state = browserReducer(state, { type: 'back' });
+
+    expect(getCurrentEntry(state)).toMatchObject({ address: 'a.zz' });
+    expect(canGoBack(state)).toBe(false);
+    expect(canGoForward(state)).toBe(true);
+  });
+
+  it('forward walks A <- B <- C back to C', () => {
+    let state = createInitialBrowserState('person-a');
+    state = browserReducer(state, page('a.zz', 'A'));
+    state = browserReducer(state, page('b.zz', 'B'));
+    state = browserReducer(state, page('c.zz', 'C'));
+    state = browserReducer(state, { type: 'back' });
+    state = browserReducer(state, { type: 'back' });
+
+    state = browserReducer(state, { type: 'forward' });
+    expect(getCurrentEntry(state)).toMatchObject({ address: 'b.zz' });
+    expect(canGoBack(state)).toBe(true);
+    expect(canGoForward(state)).toBe(true);
+
+    state = browserReducer(state, { type: 'forward' });
+    expect(getCurrentEntry(state)).toMatchObject({ address: 'c.zz' });
+    expect(canGoForward(state)).toBe(false);
+  });
+
+  it('circular revisits append another entry without deduplicating', () => {
+    let state = createInitialBrowserState('person-a');
+    state = browserReducer(state, page('tidepool.zz', 'Tidepool', '<p>1</p>'));
+    state = browserReducer(state, page('kettleclub.zz', 'Kettle'));
+    state = browserReducer(state, page('tidepool.zz', 'Tidepool', '<p>2</p>'));
+
+    expect(
+      state.entries.map((entry) =>
+        entry.kind === 'page' ? entry.address : null,
+      ),
+    ).toEqual(['tidepool.zz', 'kettleclub.zz', 'tidepool.zz']);
+    expect(getCurrentEntry(state)).toMatchObject({
+      kind: 'page',
+      address: 'tidepool.zz',
+      sanitizedHtml: '<p>2</p>',
+    });
+  });
+
   it('back does not append an entry', () => {
     let state = createInitialBrowserState('person-a');
     state = browserReducer(state, page('a.zz'));

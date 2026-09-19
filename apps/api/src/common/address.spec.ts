@@ -83,7 +83,13 @@ describe('normalizeAddress', () => {
       );
     });
 
-    it('rejects invalid hostname characters', () => {
+  it('rejects whitespace inside the address', () => {
+    expect(() => normalizeAddress('tide pool.zz')).toThrow(
+      'Address must not include whitespace',
+    );
+  });
+
+  it('rejects invalid hostname characters', () => {
       expect(() => normalizeAddress('home_site.zz')).toThrow(
         'Address must be a single valid .zz address',
       );
@@ -91,6 +97,9 @@ describe('normalizeAddress', () => {
         'Address must be a single valid .zz address',
       );
       expect(() => normalizeAddress('home-.zz')).toThrow(
+        'Address must be a single valid .zz address',
+      );
+      expect(() => normalizeAddress('tide_pool.zz')).toThrow(
         'Address must be a single valid .zz address',
       );
     });

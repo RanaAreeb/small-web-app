@@ -88,3 +88,15 @@ export class ApiError extends Error {
     this.body = body;
   }
 }
+
+/** Duck-typed check — safer than `instanceof` across Next.js bundles. */
+export function isApiError(error: unknown): error is ApiError {
+  if (error instanceof ApiError) {
+    return true;
+  }
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const candidate = error as { name?: unknown; status?: unknown };
+  return candidate.name === 'ApiError' && typeof candidate.status === 'number';
+}

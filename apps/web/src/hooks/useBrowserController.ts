@@ -21,7 +21,7 @@ import {
 } from '@/browser';
 import { normalizeAddress, InvalidAddressError } from '@/lib/address';
 import { api } from '@/lib/api';
-import { ApiError, type Person, type VisitVia } from '@/types';
+import { isApiError, type Person, type VisitVia } from '@/types';
 
 export type BrowserPanel = 'none' | 'search' | 'history' | 'publish';
 
@@ -219,7 +219,7 @@ export function useBrowserController() {
           return;
         }
 
-        if (error instanceof ApiError && error.status === 404) {
+        if (isApiError(error) && error.status === 404) {
           dispatch({ type: 'push_not_found', address });
           setAddressInput(address);
           await recordVisit({
@@ -230,6 +230,7 @@ export function useBrowserController() {
           return;
         }
 
+        setAddressInput(addressFromState(stateRef.current));
         setStatusMessage(
           error instanceof Error ? error.message : 'Navigation failed',
         );

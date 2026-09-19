@@ -126,7 +126,16 @@ export function BrowserApp() {
           </div>
         ) : null}
 
-        {showingPage && currentEntry.kind === 'page' && !showSearchTransient ? (
+        {loading ? (
+          <div
+            className="flex min-h-[28rem] flex-1 items-center justify-center bg-[var(--background)] px-4"
+            role="status"
+            aria-live="polite"
+            data-testid="navigation-loading"
+          >
+            <p className="text-sm text-[var(--muted-strong)]">Loading…</p>
+          </div>
+        ) : showingPage && currentEntry.kind === 'page' && !showSearchTransient ? (
           <div className="flex min-h-[28rem] flex-1 flex-col">
             <SiteViewport
               title={currentEntry.title}

@@ -67,7 +67,11 @@ export async function siteContentFrame(page: Page) {
   return frame;
 }
 
-export async function followLink(page: Page, linkName: string, nextAddress: string) {
+export async function followLink(
+  page: Page,
+  linkName: string,
+  nextAddress: string,
+) {
   const frame = await siteContentFrame(page);
   const link = frame.getByRole('link', { name: linkName, exact: true });
   await expect(link).toBeVisible({ timeout: 15_000 });
@@ -77,6 +81,22 @@ export async function followLink(page: Page, linkName: string, nextAddress: stri
   });
   await waitUntilIdle(page);
   await expectPageAddress(page, nextAddress);
+}
+
+export async function followLinkToNotFound(
+  page: Page,
+  linkName: string,
+  nextAddress: string,
+) {
+  const frame = await siteContentFrame(page);
+  const link = frame.getByRole('link', { name: linkName, exact: true });
+  await expect(link).toBeVisible({ timeout: 15_000 });
+  await link.click();
+  await expect(page.locator('#browser-address')).toHaveValue(nextAddress, {
+    timeout: 30_000,
+  });
+  await waitUntilIdle(page);
+  await expectNotFound(page, nextAddress);
 }
 
 export async function clickBack(page: Page) {
@@ -120,6 +140,15 @@ export async function runSearch(page: Page, query: string) {
   await page.getByRole('button', { name: 'Run search' }).click();
   await waitUntilIdle(page);
   await expect(page.getByRole('heading', { name: new RegExp(`Results for`) })).toBeVisible();
+}
+
+export async function attemptAddress(page: Page, address: string) {
+  await page.locator('#browser-address').fill(address);
+  await page.getByRole('button', { name: 'Go', exact: true }).click();
+}
+
+export async function expectValidationMessage(page: Page, pattern: RegExp | string) {
+  await expect(page.getByRole('status')).toContainText(pattern);
 }
 
 export function uniqueAddress(prefix: string) {

@@ -267,3 +267,16 @@ test('12. Publish malicious fixture and confirm sandbox protections', async ({
   expect(dialogs).toEqual([]);
   expect(blockedRequests).toEqual([]);
 });
+
+test('responsive chrome remains usable at 390, 768, and 1440', async ({ page }) => {
+  for (const width of [390, 768, 1440] as const) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(page.getByTestId('browser-app')).toBeVisible();
+    await expect(page.locator('#browser-address')).toBeVisible();
+    await expect(page.locator('#person-selector')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Go', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'History' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Publish' })).toBeVisible();
+  }
+});
